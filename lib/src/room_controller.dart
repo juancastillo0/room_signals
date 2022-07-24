@@ -22,14 +22,20 @@ class RoomController {
   late DateTime lastUpdateDate;
   final DateTime createdDate;
 
-  final Map<String, User> users = {};
+  DateTime get lastDate => lastMessageDate == null
+      ? lastUpdateDate
+      : lastUpdateDate.isAfter(lastMessageDate!)
+          ? lastUpdateDate
+          : lastMessageDate!;
+
+  final Map<String, UserRoom> users = {};
   final messagesController = StreamController<RoomMessage>.broadcast();
   final changesController = StreamController<Room>.broadcast();
 
   Room get room {
     return Room(
       roomId: id,
-      users: users.values.toList(),
+      users: users.values.map((u) => u.data).toList(),
       lastMessageDate: lastMessageDate,
       lastUpdateDate: lastUpdateDate,
       createdDate: createdDate,
@@ -43,25 +49,65 @@ class RoomController {
     messagesController.add(message);
   }
 
-  void addUser(User user) {
+  void addUser(User user, StreamController<RoomEvent> streamController) {
     if (!isUserInRoom(user.userId)) {
       lastUpdateDate = DateTime.now();
-      users[user.userId] = user;
+      users[user.userId] = UserRoom(
+        data: user,
+        streamController: streamController,
+      );
       changesController.add(room);
     }
   }
 
   void removeUser(User user) {
-    if (isUserInRoom(user.userId)) {
+    final value = users.remove(user.userId);
+    if (value != null) {
+      value.streamController.close();
       lastUpdateDate = DateTime.now();
-      users.remove(user.userId);
       changesController.add(room);
+    }
+  }
+
+  void dispose() {
+    messagesController.close();
+    changesController.close();
+    for (final u in users.values) {
+      u.streamController.close();
     }
   }
 }
 
+class UserRoom {
+  final User data;
+  final StreamController<RoomEvent> streamController;
+
+  UserRoom({
+    required this.data,
+    required this.streamController,
+  });
+}
+
 class RoomsController {
   RoomsController();
+
+  void tryCleanUp() {
+    const maxRooms = 10000;
+    const roomsAfterCleanUp = 7000;
+    if (rooms.length > maxRooms) {
+      final sorted = rooms.values.toList()
+        ..sort(
+          (a, b) =>
+              a.lastDate.millisecondsSinceEpoch -
+              b.lastDate.millisecondsSinceEpoch,
+        );
+      for (final r in sorted.take(rooms.length - roomsAfterCleanUp)) {
+        roomsByToken.remove(r.token);
+        final room = rooms.remove(r.id)!;
+        room.dispose();
+      }
+    }
+  }
 
   static final ref = RefWithDefault(
     (scope) => RoomsController(),
@@ -81,6 +127,7 @@ class RoomsController {
     final newRoom = RoomController(user);
     rooms[newRoom.id] = newRoom;
     roomsByToken[newRoom.token] = newRoom;
+    tryCleanUp();
     return newRoom;
   }
 }
