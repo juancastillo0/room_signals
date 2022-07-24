@@ -1,0 +1,2 @@
+schema: "room_signals_client/lib/schema.graphql"
+documents: "**/*.graphql"

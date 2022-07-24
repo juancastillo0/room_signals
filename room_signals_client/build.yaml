@@ -1,0 +1,13 @@
+targets:
+  $default:
+    builders:
+      artemis:
+        options:
+          schema_mapping:
+            - output: lib/graphql_api.graphql.dart
+              schema: lib/schema.graphql
+              queries_glob: lib/src/**.graphql
+          scalar_mapping:
+            - custom_parser_import: 'package:room_signals_client/src/coercers.dart'
+              graphql_type: Date
+              dart_type: DateTime

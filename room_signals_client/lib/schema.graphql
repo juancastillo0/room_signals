@@ -1,0 +1,49 @@
+type Query {
+  getUser: User!
+  getListRoom: [Room!]!
+}
+
+type User {
+  userId: String!
+}
+
+type Room {
+  roomId: String!
+  users: [User!]!
+  lastMessageDate: Date
+  lastUpdateDate: Date!
+  createdDate: Date!
+}
+
+"""An ISO-8601 Date."""
+scalar Date
+
+type Mutation {
+  createUser: UserCreated!
+  createRoom: RoomCreated!
+  resetTokenRoom(roomId: String!): RoomCreated
+  sendMessageRoom(roomId: String!, content: String!, recipientUserId: String): RoomMessage!
+}
+
+type UserCreated {
+  token: String!
+  user: User!
+}
+
+type RoomCreated {
+  room: Room!
+  token: String!
+}
+
+type RoomMessage {
+  content: String!
+  user: User!
+  createdDate: Date!
+  recipientUserId: String
+}
+
+type Subscription {
+  eventsRoom(token: String!): RoomEvent!
+}
+
+union RoomEvent = RoomMessage | Room
