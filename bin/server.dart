@@ -12,14 +12,14 @@ Response _rootHandler(Request req) {
   return Response.ok(
     '''
 <h1>Room Signals</h1>
-<h3><a href="https://github.com/juancastillo0/leto">GraphQL Leto Dart server libraries</a></h3>
+<h3><a href="https://github.com/juancastillo0/leto">GraphQL Leto Dart server libraries example</a></h3>
 <p>A simple web socket enabled GraphQL server for managing rooms and message subscriptions.</p>
 <ul>
 <li><a href="/graphql-schema">Schema</a></li>
 <li><a href="/graphql-altair">Altair</a></li>
 <li><a href="/graphql-playground">Playground</a></li>
-<li><a href="/graphql-graphiql">Graphiql</a></li>
-<li><a href="https://github.com/juancastillo0/leto">Github Code Repository</a></li>
+<li><a href="/graphql-graphiql">GraphiQL</a></li>
+<li><a href="https://github.com/juancastillo0/room_signals">Github Code Repository</a></li>
 </ul>
 ''',
     headers: {HttpHeaders.contentTypeHeader: 'text/html'},
@@ -35,11 +35,17 @@ void main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
   final ip = InternetAddress.anyIPv4;
   // For running in containers, we respect the PORT environment variable.
+  final adminPassword = Platform.environment['ADMIN_PASSWORD'];
+  final environment = Platform.environment['ENVIRONMENT'] ?? 'DEVELOPMENT';
+  final host = Platform.environment['HOST'] ?? 'localhost';
+  final isSecure = host != 'localhost' && environment == 'PRODUCTION';
   final port = int.parse(Platform.environment['PORT'] ?? '6394');
+
   const graphqlPath = 'graphql';
   const graphqlSubscriptionPath = '$graphqlPath-subscription';
-  final endpoint = 'http://localhost:$port/$graphqlPath';
-  final subscriptionEndpoint = 'ws://localhost:$port/$graphqlSubscriptionPath';
+  final endpoint = 'http${isSecure ? 's' : ''}://$host:$port/$graphqlPath';
+  final subscriptionEndpoint =
+      'ws${isSecure ? 's' : ''}://$host:$port/$graphqlSubscriptionPath';
 
   final graphQLExecutor = GraphQL(graphqlApiSchema);
 
@@ -85,10 +91,17 @@ void main(List<String> args) async {
   );
 
   // Configure a pipeline that logs requests.
-  final handler = Pipeline().addMiddleware(logRequests()).addHandler(router);
+  final handler = Pipeline()
+      .addMiddleware(customLog())
+      .addMiddleware(cors())
+      .addMiddleware(etag())
+      .addMiddleware(jsonParse())
+      .addHandler(router);
 
   final server = await serve(handler, ip, port);
-  print('Server listening on port ${server.port}');
+  print(
+    'Server listening at "$endpoint" subscriptions at "$subscriptionEndpoint"',
+  );
 }
 
 void _addGraphQLExplorers(
