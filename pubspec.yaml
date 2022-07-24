@@ -1,0 +1,54 @@
+name: room_signals
+description: A server app using the shelf package and Docker.
+version: 1.0.0
+# homepage: https://www.example.com
+
+environment:
+  sdk: ">=2.17.5 <3.0.0"
+
+dependencies:
+  args: ^2.0.0
+  shelf: ^1.1.0
+  shelf_router: ^1.0.0
+
+  leto:
+  leto_schema:
+  leto_shelf:
+  valida:
+  json_annotation:
+  dart_jsonwebtoken: ^2.4.1
+
+dev_dependencies:
+  http: ^0.13.0
+  lints: ^2.0.0
+  test: ^1.15.0
+  build_runner:
+  json_serializable:
+  valida_generator:
+  leto_generator:
+
+dependency_overrides:
+  leto_generator:
+    git:
+      url: https://github.com/juancastillo0/leto
+      path: leto_generator
+  leto:
+    git:
+      url: https://github.com/juancastillo0/leto
+      path: leto
+  leto_schema:
+    git:
+      url: https://github.com/juancastillo0/leto
+      path: leto_schema
+  leto_shelf:
+    git:
+      url: https://github.com/juancastillo0/leto
+      path: leto_shelf
+  valida:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida
+  valida_generator:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida_generator
