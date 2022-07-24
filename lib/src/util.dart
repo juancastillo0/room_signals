@@ -12,3 +12,19 @@ String randomId({int length = 32}) {
     (_) => _alphabetComplete[_random.nextInt(_alphabetComplete.length)],
   ).join();
 }
+
+abstract class AppError implements Error {
+  AppError({required StackTrace? stackTrace})
+      : stackTrace = stackTrace ?? StackTrace.current;
+
+  String get message;
+  Enum get code;
+
+  @override
+  final StackTrace? stackTrace;
+
+  @override
+  String toString() {
+    return '${code.name}: $message';
+  }
+}

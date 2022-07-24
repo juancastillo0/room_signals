@@ -29,15 +29,18 @@ class UserCreated {
   });
 }
 
+/// Returns the currently authenticated user.
+/// Throws "unauthenticated".
 @Query()
 User getUser(Ctx ctx) {
   final token = getUserToken(ctx);
   if (token != null) {
     return userFromToken(ctx, token);
   }
-  throw UserException(UserExceptionCode.unauthenticated, 'Unauthenticated');
+  throw UserError(UserErrorCode.unauthenticated, 'Unauthenticated');
 }
 
+/// Returns the currently authenticated user or creates a new one.
 @Mutation()
 UserCreated createUser(Ctx ctx) {
   String? token = getUserToken(ctx);
@@ -59,17 +62,20 @@ UserCreated createUser(Ctx ctx) {
   );
 }
 
-enum UserExceptionCode {
+enum UserErrorCode {
   unauthorized,
   unauthenticated,
 }
 
-class UserException implements Exception {
-  final UserExceptionCode code;
+class UserError extends AppError {
+  @override
+  final UserErrorCode code;
+  @override
   final String message;
 
-  UserException(
+  UserError(
     this.code,
-    this.message,
-  );
+    this.message, {
+    StackTrace? stackTrace,
+  }) : super(stackTrace: stackTrace);
 }

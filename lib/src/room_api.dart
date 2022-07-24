@@ -4,6 +4,7 @@ import 'package:leto_schema/leto_schema.dart';
 
 import 'room_controller.dart';
 import 'user_api.dart';
+import 'util.dart';
 
 part 'room_api.g.dart';
 
@@ -83,15 +84,15 @@ class RoomEndpoints {
   RoomController _getRoomForUser(String roomId, User user) {
     final room = controller.rooms[roomId];
     if (room == null) {
-      throw RoomException(
-        RoomExceptionCode.roomIdNotFound,
+      throw RoomError(
+        RoomErrorCode.roomIdNotFound,
         'No room with id "$roomId"',
       );
     }
     if (!room.isUserInRoom(user.userId)) {
       // room.users.add(user);
-      throw RoomException(
-        RoomExceptionCode.userNotInRoom,
+      throw RoomError(
+        RoomErrorCode.userNotInRoom,
         'User "${user.userId}" not in room "$roomId"',
       );
     }
@@ -155,8 +156,8 @@ class RoomEndpoints {
     final room = _getRoomForUser(roomId, user);
 
     if (recipientUserId != null && !room.isUserInRoom(recipientUserId)) {
-      throw RoomException(
-        RoomExceptionCode.recipientNotInRoom,
+      throw RoomError(
+        RoomErrorCode.recipientNotInRoom,
         'recipientUserId "$recipientUserId" not found',
       );
     }
@@ -177,8 +178,8 @@ class RoomEndpoints {
     // final room = _getRoomForUser(roomId, user);
     final room = controller.roomsByToken[token];
     if (room == null) {
-      throw RoomException(
-        RoomExceptionCode.invalidTokenRoom,
+      throw RoomError(
+        RoomErrorCode.invalidTokenRoom,
         'No room for token "$token"',
       );
     }
@@ -214,19 +215,22 @@ class RoomEndpoints {
   // }
 }
 
-enum RoomExceptionCode {
+enum RoomErrorCode {
   roomIdNotFound,
   userNotInRoom,
   recipientNotInRoom,
   invalidTokenRoom,
 }
 
-class RoomException implements Exception {
-  final RoomExceptionCode code;
+class RoomError extends AppError {
+  @override
+  final RoomErrorCode code;
+  @override
   final String message;
 
-  RoomException(
+  RoomError(
     this.code,
-    this.message,
-  );
+    this.message, {
+    StackTrace? stackTrace,
+  }) : super(stackTrace: stackTrace);
 }
