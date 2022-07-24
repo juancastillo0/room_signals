@@ -83,11 +83,17 @@ class RoomEndpoints {
   RoomController _getRoomForUser(String roomId, User user) {
     final room = controller.rooms[roomId];
     if (room == null) {
-      throw Exception('No room with id "$roomId"');
+      throw RoomException(
+        RoomExceptionCode.roomIdNotFound,
+        'No room with id "$roomId"',
+      );
     }
     if (!room.isUserInRoom(user.userId)) {
       // room.users.add(user);
-      throw Exception('User "${user.userId}" not in room "$roomId"');
+      throw RoomException(
+        RoomExceptionCode.userNotInRoom,
+        'User "${user.userId}" not in room "$roomId"',
+      );
     }
     return room;
   }
@@ -149,7 +155,10 @@ class RoomEndpoints {
     final room = _getRoomForUser(roomId, user);
 
     if (recipientUserId != null && !room.isUserInRoom(recipientUserId)) {
-      throw Exception('recipientUserId "$recipientUserId" not found');
+      throw RoomException(
+        RoomExceptionCode.recipientNotInRoom,
+        'recipientUserId "$recipientUserId" not found',
+      );
     }
 
     final message = RoomMessage(
@@ -168,7 +177,10 @@ class RoomEndpoints {
     // final room = _getRoomForUser(roomId, user);
     final room = controller.roomsByToken[token];
     if (room == null) {
-      throw Exception('No room for token "$token"');
+      throw RoomException(
+        RoomExceptionCode.invalidTokenRoom,
+        'No room for token "$token"',
+      );
     }
 
     StreamSubscription? messagesSubs;
@@ -182,7 +194,7 @@ class RoomEndpoints {
               event.recipientUserId == user.userId)
           .listen(streamController.add);
       changesSubs = room.changesController.stream.listen(streamController.add);
-      room.addUser(user);
+      room.addUser(user, streamController);
     };
     streamController.onCancel = () async {
       await (messagesSubs?.cancel() ?? Future.value());
@@ -200,4 +212,21 @@ class RoomEndpoints {
 
   //   return room.changesController.stream;
   // }
+}
+
+enum RoomExceptionCode {
+  roomIdNotFound,
+  userNotInRoom,
+  recipientNotInRoom,
+  invalidTokenRoom,
+}
+
+class RoomException implements Exception {
+  final RoomExceptionCode code;
+  final String message;
+
+  RoomException(
+    this.code,
+    this.message,
+  );
 }

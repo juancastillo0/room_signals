@@ -35,7 +35,7 @@ User getUser(Ctx ctx) {
   if (token != null) {
     return userFromToken(ctx, token);
   }
-  throw Exception('Unauthenticated');
+  throw UserException(UserExceptionCode.unauthenticated, 'Unauthenticated');
 }
 
 @Mutation()
@@ -56,5 +56,20 @@ UserCreated createUser(Ctx ctx) {
   return UserCreated(
     token: token,
     user: user,
+  );
+}
+
+enum UserExceptionCode {
+  unauthorized,
+  unauthenticated,
+}
+
+class UserException implements Exception {
+  final UserExceptionCode code;
+  final String message;
+
+  UserException(
+    this.code,
+    this.message,
   );
 }
