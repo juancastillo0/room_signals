@@ -9,8 +9,12 @@ part 'user_api.g.dart';
 class User {
   final String userId;
 
+  @GraphQLField(omit: true)
+  final UserReqData reqData;
+
   User({
     required this.userId,
+    required this.reqData,
   });
 }
 
@@ -29,7 +33,7 @@ class UserCreated {
 User getUser(Ctx ctx) {
   final token = getUserToken(ctx);
   if (token != null) {
-    return userFromToken(token);
+    return userFromToken(ctx, token);
   }
   throw Exception('Unauthenticated');
 }
@@ -40,7 +44,11 @@ UserCreated createUser(Ctx ctx) {
 
   final User user;
   if (token == null) {
-    user = User(userId: randomId());
+    final reqData = UserReqData.fromCtx(ctx);
+    user = User(
+      userId: randomId(),
+      reqData: reqData,
+    );
     token = createToken(ctx, user);
   } else {
     user = getUser(ctx);
