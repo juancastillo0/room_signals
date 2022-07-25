@@ -39,12 +39,9 @@ class RoomSignalsClient {
     Duration reconnectInterval = const Duration(seconds: 10),
     ClientPersistence? persistence,
   }) async {
-    final httpsRegExp = RegExp('http[s]://');
-    final wsUrl = url.startsWith(httpsRegExp)
-        ? url.replaceFirst(httpsRegExp, 'ws://')
-        : url;
+    final wsUrl = url.startsWith('http') ? url.replaceFirst('http', 'w') : url;
 
-    const TOKEN_PERSISTENCE = 'token';
+    const TOKEN_PERSISTENCE = 'room-signals-auth';
     String? token;
     if (persistence != null) {
       token = await persistence.get(TOKEN_PERSISTENCE);
@@ -54,7 +51,7 @@ class RoomSignalsClient {
       wsUrl,
       autoReconnect: true,
       reconnectInterval: reconnectInterval,
-      initialPayload: token != null ? {'token': token} : null,
+      initialPayload: token != null ? {TOKEN_PERSISTENCE: token} : null,
     );
     ArtemisClient client = ArtemisClient.fromLink(link);
     final response = await client.execute(CreateUserMutation());
@@ -74,7 +71,7 @@ class RoomSignalsClient {
       link = WebSocketLink(
         wsUrl,
         autoReconnect: true,
-        initialPayload: {'token': createUser.token},
+        initialPayload: {TOKEN_PERSISTENCE: createUser.token},
         reconnectInterval: reconnectInterval,
       );
       client = ArtemisClient.fromLink(link);
@@ -228,7 +225,7 @@ class Room {
 //               ? url.replaceFirst(RegExp('http[s]://'), 'ws://')
 //               : url,
 //           autoReconnect: true,
-//           initialPayload: {'token': ''},
+//           initialPayload: {TOKEN_PERSISTENCE: ''},
 //         ),
 //       )
 // client = ArtemisClient(

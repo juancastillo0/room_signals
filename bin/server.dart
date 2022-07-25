@@ -59,9 +59,8 @@ void main(List<String> args) async {
       graphQLWebSocket(
         graphQLExecutor,
         validateIncomingConnection: (payload, server) {
-          final token = payload?['token'];
-          if (token is String) {
-            server.globalVariables.addAll(setUserTokenOverrides(token));
+          if (payload != null) {
+            server.globalVariables.addAll(setUserTokenOverrides(payload));
           }
           return true;
         },

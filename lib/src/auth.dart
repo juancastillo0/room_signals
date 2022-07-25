@@ -58,8 +58,9 @@ String? getUserToken(Ctx ctx) {
   return userToken.token;
 }
 
-Map<Object, Object?> setUserTokenOverrides(String value) {
-  return {_UserToken.ref: _UserToken(token: value)};
+Map<Object, Object?> setUserTokenOverrides(Map<String, Object?> payload) {
+  final token = payload[_AUTH_HEADER] as String?;
+  return {_UserToken.ref: _UserToken(token: token)};
 }
 
 class _UserToken {
