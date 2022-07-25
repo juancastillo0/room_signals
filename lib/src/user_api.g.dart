@@ -17,6 +17,8 @@ final _getUserGraphQLField =
 
                 return getUser(ctx);
               },
+              description:
+                  'Returns the currently authenticated user.\nThrows "unauthenticated" if the user is not authenticated.\nYou may pass the user token as header, url query parameter or as a value\nin the initial connection payload for web sockets.\nThe key of the value should be "room-signals-auth".',
             )));
 
 GraphQLObjectField<UserCreated, Object?, Object?> get createUserGraphQLField =>
@@ -30,6 +32,8 @@ final _createUserGraphQLField =
 
                 return createUser(ctx);
               },
+              description:
+                  'Returns the currently authenticated user or creates a new one.',
             )));
 
 // **************************************************************************
@@ -46,7 +50,8 @@ final _userGraphQLType =
   setValue(__userGraphQLType);
   __userGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('userId', resolve: (obj, ctx) => obj.userId)
+      graphQLString.nonNull().field('userId',
+          resolve: (obj, ctx) => obj.userId, description: 'A unique user id')
     ],
   );
 
@@ -66,7 +71,10 @@ final _userCreatedGraphQLType =
   setValue(__userCreatedGraphQLType);
   __userCreatedGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('token', resolve: (obj, ctx) => obj.token),
+      graphQLString.nonNull().field('token',
+          resolve: (obj, ctx) => obj.token,
+          description:
+              'The user token. You may save this, but do not share it.\nView getUser query documentation for more info.'),
       userGraphQLType.nonNull().field('user', resolve: (obj, ctx) => obj.user)
     ],
   );

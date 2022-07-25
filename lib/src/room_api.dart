@@ -10,11 +10,19 @@ part 'room_api.g.dart';
 
 @GraphQLClass()
 class Room implements RoomEvent {
+  /// Unique id of the room
   final String roomId;
+
+  /// All users that are subscribed to room events
   final List<User> users;
 
+  /// The date of the last message may be null when no messages have been sent
   final DateTime? lastMessageDate;
+
+  /// The last update to user subscriptions
   final DateTime lastUpdateDate;
+
+  /// The date of creation of the room
   final DateTime createdDate;
 
   const Room({
@@ -29,6 +37,9 @@ class Room implements RoomEvent {
 @GraphQLClass()
 class RoomCreated {
   final Room room;
+
+  /// Can be used to subscribe to room events you may share it to other users.
+  /// May be reset with resetTokenRoom
   final String token;
 
   RoomCreated({
@@ -37,11 +48,20 @@ class RoomCreated {
   });
 }
 
+/// A room message.
 @GraphQLClass()
 class RoomMessage implements RoomEvent {
+  /// The main payload of the message.
   final String content;
+
+  /// The user that sent the message.
   final User user;
+
+  /// The date when the message was created.
   final DateTime createdDate;
+
+  /// The user id to which this message was sent.
+  /// Null if it was sent to all users in a room.
   final String? recipientUserId;
 
   const RoomMessage({
@@ -52,6 +72,7 @@ class RoomMessage implements RoomEvent {
   });
 }
 
+/// An event in a room. May be a message or a room with user subscription changes.
 @GraphQLUnion()
 class RoomEvent {
   const factory RoomEvent.message({
@@ -99,6 +120,7 @@ class RoomEndpoints {
     return room;
   }
 
+  /// Returns the list of currently subscribed rooms.
   @Query()
   List<Room> getListRoom(Ctx ctx) {
     final user = getUser(ctx);
@@ -108,6 +130,8 @@ class RoomEndpoints {
         .toList();
   }
 
+  /// Creates a room. You can use the RoomCreated.token for subscribing to events
+  /// in eventsRoom or sharing it to other users.
   @Mutation()
   RoomCreated createRoom(Ctx ctx) {
     final user = getUser(ctx);
@@ -119,6 +143,8 @@ class RoomEndpoints {
     );
   }
 
+  /// Resets the token for the given roomId. Only the creator can reset the token.
+  /// Previous tokens will be invalidated.
   @Mutation()
   RoomCreated? resetTokenRoom(Ctx ctx, String roomId) {
     final user = getUser(ctx);
@@ -145,6 +171,8 @@ class RoomEndpoints {
   //   }
   // }
 
+  /// Sends a message with content to a room with roomId. You can direct it to a
+  /// specific user with recipientUserId.
   @Mutation()
   RoomMessage sendMessageRoom(
     Ctx ctx,
@@ -172,6 +200,7 @@ class RoomEndpoints {
     return message;
   }
 
+  /// Subscribes to changes in user subscription and room messages.
   @Subscription()
   Stream<RoomEvent> eventsRoom(Ctx ctx, String token) {
     final user = getUser(ctx);

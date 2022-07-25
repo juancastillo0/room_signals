@@ -17,14 +17,15 @@ final _getListRoomGraphQLField =
                 final args = ctx.args;
 
                 final _call = (RoomEndpoints r) => r.getListRoom(ctx);
-                // ignore: unnecessary_non_null_assertion
-                final FutureOr<RoomEndpoints> _obj =
+                final FutureOr<RoomEndpoints>
+                    _obj = // ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
                 else
                   return _call(_obj);
               },
+              description: 'Returns the list of currently subscribed rooms.',
             )));
 
 GraphQLObjectField<RoomCreated, Object?, Object?> get createRoomGraphQLField =>
@@ -37,14 +38,16 @@ final _createRoomGraphQLField =
                 final args = ctx.args;
 
                 final _call = (RoomEndpoints r) => r.createRoom(ctx);
-                // ignore: unnecessary_non_null_assertion
-                final FutureOr<RoomEndpoints> _obj =
+                final FutureOr<RoomEndpoints>
+                    _obj = // ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
                 else
                   return _call(_obj);
               },
+              description:
+                  'Creates a room. You can use the RoomCreated.token for subscribing to events\nin eventsRoom or sharing it to other users.',
             )));
 
 GraphQLObjectField<RoomCreated?, Object?, Object?>
@@ -58,14 +61,16 @@ final _resetTokenRoomGraphQLField =
 
                 final _call = (RoomEndpoints r) =>
                     r.resetTokenRoom(ctx, (args["roomId"] as String));
-                // ignore: unnecessary_non_null_assertion
-                final FutureOr<RoomEndpoints> _obj =
+                final FutureOr<RoomEndpoints>
+                    _obj = // ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
                 else
                   return _call(_obj);
               },
+              description:
+                  'Resets the token for the given roomId. Only the creator can reset the token.\nPrevious tokens will be invalidated.',
             ))
               ..inputs.addAll([graphQLString.nonNull().inputField('roomId')]));
 
@@ -83,14 +88,16 @@ final _sendMessageRoomGraphQLField =
                     (args["roomId"] as String),
                     (args["content"] as String),
                     (args["recipientUserId"] as String?));
-                // ignore: unnecessary_non_null_assertion
-                final FutureOr<RoomEndpoints> _obj =
+                final FutureOr<RoomEndpoints>
+                    _obj = // ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
                 else
                   return _call(_obj);
               },
+              description:
+                  'Sends a message with content to a room with roomId. You can direct it to a\nspecific user with recipientUserId.',
             ))
               ..inputs.addAll([
                 graphQLString.nonNull().inputField('roomId'),
@@ -109,14 +116,16 @@ final _eventsRoomGraphQLField =
 
                 final _call = (RoomEndpoints r) =>
                     r.eventsRoom(ctx, (args["token"] as String));
-                // ignore: unnecessary_non_null_assertion
-                final FutureOr<RoomEndpoints> _obj =
+                final FutureOr<RoomEndpoints>
+                    _obj = // ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
                 else
                   return _call(_obj);
               },
+              description:
+                  'Subscribes to changes in user subscription and room messages.',
             ))
               ..inputs.addAll([graphQLString.nonNull().inputField('token')]));
 
@@ -134,22 +143,22 @@ final _roomGraphQLType =
   setValue(__roomGraphQLType);
   __roomGraphQLType.fields.addAll(
     [
-      graphQLString
-          .nonNull()
-          .field('roomId', resolve: (obj, ctx) => obj.roomId),
-      userGraphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .field('users', resolve: (obj, ctx) => obj.users),
+      graphQLString.nonNull().field('roomId',
+          resolve: (obj, ctx) => obj.roomId,
+          description: 'Unique id of the room'),
+      userGraphQLType.nonNull().list().nonNull().field('users',
+          resolve: (obj, ctx) => obj.users,
+          description: 'All users that are subscribed to room events'),
       graphQLDate.field('lastMessageDate',
-          resolve: (obj, ctx) => obj.lastMessageDate),
-      graphQLDate
-          .nonNull()
-          .field('lastUpdateDate', resolve: (obj, ctx) => obj.lastUpdateDate),
-      graphQLDate
-          .nonNull()
-          .field('createdDate', resolve: (obj, ctx) => obj.createdDate)
+          resolve: (obj, ctx) => obj.lastMessageDate,
+          description:
+              'The date of the last message may be null when no messages have been sent'),
+      graphQLDate.nonNull().field('lastUpdateDate',
+          resolve: (obj, ctx) => obj.lastUpdateDate,
+          description: 'The last update to user subscriptions'),
+      graphQLDate.nonNull().field('createdDate',
+          resolve: (obj, ctx) => obj.createdDate,
+          description: 'The date of creation of the room')
     ],
   );
 
@@ -170,7 +179,10 @@ final _roomCreatedGraphQLType =
   __roomCreatedGraphQLType.fields.addAll(
     [
       roomGraphQLType.nonNull().field('room', resolve: (obj, ctx) => obj.room),
-      graphQLString.nonNull().field('token', resolve: (obj, ctx) => obj.token)
+      graphQLString.nonNull().field('token',
+          resolve: (obj, ctx) => obj.token,
+          description:
+              'Can be used to subscribe to room events you may share it to other users.\nMay be reset with resetTokenRoom')
     ],
   );
 
@@ -185,21 +197,25 @@ final _roomMessageGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<RoomMessage>>((setValue) {
   final __name = 'RoomMessage';
 
-  final __roomMessageGraphQLType =
-      objectType<RoomMessage>(__name, isInterface: false, interfaces: []);
+  final __roomMessageGraphQLType = objectType<RoomMessage>(__name,
+      isInterface: false, interfaces: [], description: 'A room message.');
 
   setValue(__roomMessageGraphQLType);
   __roomMessageGraphQLType.fields.addAll(
     [
-      graphQLString
-          .nonNull()
-          .field('content', resolve: (obj, ctx) => obj.content),
-      userGraphQLType.nonNull().field('user', resolve: (obj, ctx) => obj.user),
-      graphQLDate
-          .nonNull()
-          .field('createdDate', resolve: (obj, ctx) => obj.createdDate),
+      graphQLString.nonNull().field('content',
+          resolve: (obj, ctx) => obj.content,
+          description: 'The main payload of the message.'),
+      userGraphQLType.nonNull().field('user',
+          resolve: (obj, ctx) => obj.user,
+          description: 'The user that sent the message.'),
+      graphQLDate.nonNull().field('createdDate',
+          resolve: (obj, ctx) => obj.createdDate,
+          description: 'The date when the message was created.'),
       graphQLString.field('recipientUserId',
-          resolve: (obj, ctx) => obj.recipientUserId)
+          resolve: (obj, ctx) => obj.recipientUserId,
+          description:
+              'The user id to which this message was sent.\nNull if it was sent to all users in a room.')
     ],
   );
 
@@ -219,6 +235,8 @@ final _roomEventGraphQLType =
   final type = GraphQLUnionType<RoomEvent>(
     'RoomEvent',
     const [],
+    description:
+        'An event in a room. May be a message or a room with user subscription changes.',
   );
   setValue(type);
   type.possibleTypes.addAll([

@@ -7,6 +7,7 @@ part 'user_api.g.dart';
 
 @GraphQLClass()
 class User {
+  /// A unique user id
   final String userId;
 
   @GraphQLField(omit: true)
@@ -20,6 +21,8 @@ class User {
 
 @GraphQLClass()
 class UserCreated {
+  /// The user token. You may save this, but do not share it.
+  /// View getUser query documentation for more info.
   final String token;
   final User user;
 
@@ -30,7 +33,10 @@ class UserCreated {
 }
 
 /// Returns the currently authenticated user.
-/// Throws "unauthenticated".
+/// Throws "unauthenticated" if the user is not authenticated.
+/// You may pass the user token as header, url query parameter or as a value
+/// in the initial connection payload for web sockets.
+/// The key of the value should be "room-signals-auth".
 @Query()
 User getUser(Ctx ctx) {
   final token = getUserToken(ctx);
