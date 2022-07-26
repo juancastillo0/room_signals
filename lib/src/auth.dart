@@ -134,7 +134,7 @@ class UserReqData {
 
   factory UserReqData.fromJson(Map<String, dynamic> map) {
     return UserReqData(
-      forwarded: List<String>.from(map['forwarded']),
+      forwarded: List<String>.from(map['forwarded'] as List),
       ip: map['ip'] as String,
       userAgent: map['userAgent'] as String,
       host: map['host'] as String,
