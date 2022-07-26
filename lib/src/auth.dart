@@ -47,10 +47,8 @@ String createToken(Ctx ctx, User user) {
 }
 
 const _JWT_ISSUER = 'room_signals';
-const _JWT_SECRET = String.fromEnvironment(
-  'JWT_SECRET',
-  defaultValue: 'secret passphrase',
-);
+// ignore: non_constant_identifier_names
+final _JWT_SECRET = Platform.environment['JWT_SECRET'] ?? 'secret passphrase';
 const _AUTH_HEADER = 'room-signals-auth';
 
 String? getUserToken(Ctx ctx) {
