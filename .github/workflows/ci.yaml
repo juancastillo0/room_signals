@@ -18,6 +18,10 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
 
+      - id: install_client
+        name: Install dependencies
+        run: dart pub get --directory=room_signals_client
+
       - id: install
         name: Install dependencies
         run: dart pub get
@@ -27,8 +31,8 @@ jobs:
         if: always()
 
       - name: Run code generation client
-        run: cd room_signals_client && dart pub run build_runner build --delete-conflicting-outputs
-        if: always() && steps.install.outcome == 'success'
+        run: dart pub run --directory=room_signals_client build_runner build --delete-conflicting-outputs
+        if: always() && steps.install_client.outcome == 'success'
 
       - name: Run code generation
         run: dart pub run build_runner build --delete-conflicting-outputs
