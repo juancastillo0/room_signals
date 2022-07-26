@@ -51,11 +51,10 @@ class ServerConfig {
   ServerConfig.fromEnv({this.graphqlPath = 'graphql'})
       : adminPassword = Platform.environment['ADMIN_PASSWORD'],
         environment = AppEnvironment.values.byName(
-          String.fromEnvironment('ENVIRONMENT', defaultValue: 'development'),
+          Platform.environment['ENVIRONMENT'] ?? 'development',
         ),
-        endpointHost =
-            String.fromEnvironment('HOST', defaultValue: 'localhost'),
-        _port = int.parse(String.fromEnvironment('PORT', defaultValue: '6394'));
+        endpointHost = Platform.environment['HOST'] ?? 'localhost',
+        _port = int.parse(Platform.environment['PORT'] ?? '6394');
 
   static const bool kReleaseMode = bool.fromEnvironment('dart.vm.product');
   static const bool kProfileMode = bool.fromEnvironment('dart.vm.profile');
@@ -86,7 +85,7 @@ Router makeServerRouter(ServerConfig config) {
       queryComplexityRuleBuilder(maxComplexity: 1000, maxDepth: 4),
     ],
     extensions: [
-      if (const bool.fromEnvironment('TRACING'))
+      if (Platform.environment['GRAPHQL_TRACING'] == 'true')
         GraphQLTracingExtension(
           returnInResponse: true,
         ),
