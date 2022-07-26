@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  analyze:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04]
+        sdk: [stable, beta]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      - id: install
+        name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+        if: always()
+
+      - name: Run code generation
+        run: dart pub run build_runner build --delete-conflicting-outputs
+        if: always() && steps.install.outcome == 'success'
+
+      - name: Analyze project source
+        run: dart analyze
+        if: always() && steps.install.outcome == 'success'
+
+      - id: test
+        name: Run tests
+        run: dart test
+        if: always() && steps.install.outcome == 'success'
+
+      - id: compile
+        name: Compile binary
+        run: dart compile exe bin/server.dart --output compiled/bin/server
+        if: always() && steps.install.outcome == 'success'
+
+      - name: Upload binary
+        uses: peaceiris/actions-gh-pages@v3
+        if: matrix.os == 'ubuntu-22.04'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./compiled
+
+      # - id: coverage
+      #   name: Collect and report coverage
+      #   run: melos run coverage
+      #   if: always() && steps.install.outcome == 'success'
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v2
+      #   if: always() && steps.coverage.outcome == 'success'
+      #   with:
+      #     fail_ci_if_error: true
+      #     files: "*/coverage/lcov.info"
+      # - name: Upload leto coverage to Coveralls
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     base-path: leto
+      #     path-to-lcov: "./leto/coverage/lcov.info"
+      #     flag-name: leto
+      #     parallel: true
+
+  # Check Markdown links
+  # markdown-link-check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: gaurav-nelson/github-action-markdown-link-check@v1
+  #       with:
+  #         base-branch: main
+  #         config-file: md_link_check.json
