@@ -26,6 +26,10 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
         if: always()
 
+      - name: Run code generation client
+        run: cd room_signals_client && dart pub run build_runner build --delete-conflicting-outputs
+        if: always() && steps.install.outcome == 'success'
+
       - name: Run code generation
         run: dart pub run build_runner build --delete-conflicting-outputs
         if: always() && steps.install.outcome == 'success'
@@ -39,11 +43,9 @@ jobs:
         run: dart test
         if: always() && steps.install.outcome == 'success'
 
-      - run: mkdir -p compiled/bin
-
       - id: compile
         name: Compile binary
-        run: dart compile exe bin/server.dart --output compiled/bin/server
+        run: dart compile exe bin/server.dart --output bin/server
         if: always() && steps.install.outcome == 'success'
 
       - name: Upload binary
@@ -51,7 +53,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./compiled
+          publish_dir: ./bin
 
       # - id: coverage
       #   name: Collect and report coverage
