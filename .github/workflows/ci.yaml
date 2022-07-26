@@ -39,6 +39,8 @@ jobs:
         run: dart test
         if: always() && steps.install.outcome == 'success'
 
+      - run: mkdir -p compiled/bin
+
       - id: compile
         name: Compile binary
         run: dart compile exe bin/server.dart --output compiled/bin/server
