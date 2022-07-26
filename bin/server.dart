@@ -36,28 +36,50 @@ Response _echoHandler(Request request) {
 }
 
 void main(List<String> args) async {
-  const bool kReleaseMode = bool.fromEnvironment(
-    'dart.vm.product',
-    defaultValue: false,
-  );
+  await startServer();
+}
 
-  // Use any available host or container IP (usually `0.0.0.0`).
-  final ip = InternetAddress.anyIPv4;
-  // For running in containers, we respect the PORT environment variable.
-  final adminPassword = Platform.environment['ADMIN_PASSWORD'];
-  final environment = AppEnvironment.values.byName(
-    (Platform.environment['ENVIRONMENT'] ?? 'development').toLowerCase(),
-  );
-  final host = Platform.environment['HOST'] ?? 'localhost';
-  final isSecure = host != 'localhost' && environment.isProduction;
-  final port = int.parse(Platform.environment['PORT'] ?? '6394');
+class ServerConfig {
+  ServerConfig({
+    required this.environment,
+    required int port,
+    this.endpointHost = 'localhost',
+    this.adminPassword,
+    this.graphqlPath = 'graphql',
+  }) : _port = port;
 
-  const graphqlPath = 'graphql';
-  const graphqlSubscriptionPath = '$graphqlPath-subscription';
-  final endpoint = 'http${isSecure ? 's' : ''}://$host:$port/$graphqlPath';
-  final subscriptionEndpoint =
-      'ws${isSecure ? 's' : ''}://$host:$port/$graphqlSubscriptionPath';
+  ServerConfig.fromEnv({this.graphqlPath = 'graphql'})
+      : adminPassword = Platform.environment['ADMIN_PASSWORD'],
+        environment = AppEnvironment.values.byName(
+          String.fromEnvironment('ENVIRONMENT', defaultValue: 'development'),
+        ),
+        endpointHost =
+            String.fromEnvironment('HOST', defaultValue: 'localhost'),
+        _port = int.parse(String.fromEnvironment('PORT', defaultValue: '6394'));
 
+  static const bool kReleaseMode = bool.fromEnvironment('dart.vm.product');
+  static const bool kProfileMode = bool.fromEnvironment('dart.vm.profile');
+  static const bool kDebugMode = !kReleaseMode && !kProfileMode;
+
+  final String? adminPassword;
+  final AppEnvironment environment;
+  final String endpointHost;
+  int _port;
+  int get port => _port;
+
+  bool get isSecure => endpointHost != 'localhost' && environment.isProduction;
+  String get _portStr => isSecure ? '' : ':$port';
+
+  final String graphqlPath;
+  String get graphqlSubscriptionPath => '$graphqlPath-subscription';
+
+  String get endpoint =>
+      'http${isSecure ? 's' : ''}://$endpointHost$_portStr/$graphqlPath';
+  String get subscriptionEndpoint =>
+      'ws${isSecure ? 's' : ''}://$endpointHost$_portStr/$graphqlSubscriptionPath';
+}
+
+Router makeServerRouter(ServerConfig config) {
   final graphQLExecutor = GraphQL(
     graphqlApiSchema,
     customValidationRules: [
@@ -83,9 +105,9 @@ void main(List<String> args) async {
     ..get('/', _rootHandler)
     ..get('/echo/<message>', _echoHandler)
     ..get('/ping', (_) => Response.ok(DateTime.now().toIso8601String()))
-    ..all('/$graphqlPath', graphQLHttp(graphQLExecutor))
+    ..all('/${config.graphqlPath}', graphQLHttp(graphQLExecutor))
     ..all(
-      '/$graphqlSubscriptionPath',
+      '/${config.graphqlSubscriptionPath}',
       graphQLWebSocket(
         graphQLExecutor,
         validateIncomingConnection: (payload, server) {
@@ -99,9 +121,9 @@ void main(List<String> args) async {
 
   setUpGraphQLExplorers(
     router,
-    graphqlPath: graphqlPath,
-    endpoint: endpoint,
-    subscriptionEndpoint: subscriptionEndpoint,
+    graphqlPath: config.graphqlPath,
+    endpoint: config.endpoint,
+    subscriptionEndpoint: config.subscriptionEndpoint,
   );
   setUpGraphQLSchemaDefinition(
     router,
@@ -111,6 +133,17 @@ void main(List<String> args) async {
         'A simple web socket enabled GraphQL server for managing rooms and'
         ' message subscriptions. Using GraphQL Leto Dart server libraries.',
   );
+  return router;
+}
+
+Future<HttpServer> startServer({ServerConfig? config}) async {
+  // Use any available host or container IP (usually `0.0.0.0`).
+  final ip = InternetAddress.anyIPv4;
+  config ??= ServerConfig.fromEnv();
+
+  final server = await HttpServer.bind(ip, config.port);
+  config._port = server.port;
+  final router = makeServerRouter(config);
 
   // Configure a pipeline that logs requests.
   final handler = Pipeline()
@@ -120,8 +153,9 @@ void main(List<String> args) async {
       .addMiddleware(jsonParse())
       .addHandler(router);
 
-  final server = await serve(handler, ip, port);
+  serveRequests(server, handler);
   print(
-    'Server listening at "$endpoint" subscriptions at "$subscriptionEndpoint"',
+    'Server listening at "${config.endpoint}" subscriptions at "${config.subscriptionEndpoint}"',
   );
+  return server;
 }
