@@ -39,7 +39,7 @@ class RoomSignalsClient {
     Duration reconnectInterval = const Duration(seconds: 10),
     ClientPersistence? persistence,
   }) async {
-    final wsUrl = url.startsWith('http') ? url.replaceFirst('http', 'w') : url;
+    final wsUrl = url.startsWith('http') ? url.replaceFirst('http', 'ws') : url;
 
     const TOKEN_PERSISTENCE = 'room-signals-auth';
     String? token;
@@ -166,7 +166,9 @@ class RoomSignalsClient {
               _roomChangeController.add(room);
             } else if (data is EventsRoom$Subscription$RoomEvent$RoomMessage) {
               _messageController.add(data);
-            } else {}
+            } else {
+              // TODO: handle errors or other events
+            }
 
             complete(event.errors, null);
           },

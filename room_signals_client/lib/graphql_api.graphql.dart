@@ -741,7 +741,7 @@ final SEND_MESSAGE_ROOM_MUTATION_DOCUMENT = DocumentNode(definitions: [
                   value: VariableNode(name: NameNode(value: 'roomId'))),
               ArgumentNode(
                   name: NameNode(value: 'content'),
-                  value: VariableNode(name: NameNode(value: 'roomId'))),
+                  value: VariableNode(name: NameNode(value: 'content'))),
               ArgumentNode(
                   name: NameNode(value: 'recipientUserId'),
                   value: VariableNode(name: NameNode(value: 'recipientUserId')))

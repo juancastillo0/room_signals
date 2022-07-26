@@ -40,7 +40,7 @@ mutation sendMessageRoom(
 ) {
   sendMessageRoom(
     roomId: $roomId
-    content: $roomId
+    content: $content
     recipientUserId: $recipientUserId
   ) {
     ..._RoomMessage
