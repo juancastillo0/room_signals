@@ -217,7 +217,6 @@ class Room {
 //   }
 // }
 
-
 // RoomSignalsClient(
 //   this.url, {
 //   http.Client? httpClient,
