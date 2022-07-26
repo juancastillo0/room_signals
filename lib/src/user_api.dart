@@ -1,4 +1,5 @@
 import 'package:leto_schema/leto_schema.dart';
+import 'package:valida/valida.dart';
 
 import 'auth.dart';
 import 'util.dart';
@@ -10,10 +11,14 @@ class User {
   /// A unique user id
   final String userId;
 
+  /// An optional name for the user
+  final String? name;
+
   @GraphQLField(omit: true)
   final UserReqData reqData;
 
   User({
+    required this.name,
     required this.userId,
     required this.reqData,
   });
@@ -47,20 +52,23 @@ User getUser(Ctx ctx) {
 }
 
 /// Returns the currently authenticated user or creates a new one.
+@Valida()
 @Mutation()
-UserCreated createUser(Ctx ctx) {
+UserCreated createUser(
+  Ctx ctx,
+  @ValidaString(minLength: 2) String? name,
+) {
   String? token = getUserToken(ctx);
 
-  final User user;
-  if (token == null) {
+  User? user = token == null ? null : getUser(ctx);
+  if (token == null || user == null || user.name != name) {
     final reqData = UserReqData.fromCtx(ctx);
     user = User(
-      userId: randomId(),
+      name: name,
+      userId: user?.userId ?? randomId(),
       reqData: reqData,
     );
     token = createToken(ctx, user);
-  } else {
-    user = getUser(ctx);
   }
   return UserCreated(
     token: token,

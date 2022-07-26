@@ -29,12 +29,33 @@ final _createUserGraphQLField =
               'createUser',
               resolve: (obj, ctx) {
                 final args = ctx.args;
+                final validationErrorMap = <String, List<ValidaError>>{};
 
-                return createUser(ctx);
+                final _validation =
+                    CreateUserArgs(ctx, (args["name"] as String?)).validate();
+                validationErrorMap.addAll(_validation.errorsMap.map(
+                    (k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
+                  ..removeWhere((k, v) => v.isEmpty));
+                if (validationErrorMap.isNotEmpty) {
+                  throw GraphQLError(
+                    'Input validation error',
+                    extensions: {
+                      'validaErrors': validationErrorMap,
+                    },
+                    sourceError: validationErrorMap,
+                  );
+                }
+
+                return createUser(ctx, (args["name"] as String?));
               },
               description:
                   'Returns the currently authenticated user or creates a new one.',
-            )));
+            ))
+              ..inputs.addAll([
+                graphQLString.inputField('name', attachments: [
+                  ValidaAttachment(ValidaString(minLength: 2)),
+                ])
+              ]));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -51,7 +72,10 @@ final _userGraphQLType =
   __userGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('userId',
-          resolve: (obj, ctx) => obj.userId, description: 'A unique user id')
+          resolve: (obj, ctx) => obj.userId, description: 'A unique user id'),
+      graphQLString.field('name',
+          resolve: (obj, ctx) => obj.name,
+          description: 'An optional name for the user')
     ],
   );
 
@@ -85,3 +109,120 @@ final _userCreatedGraphQLType =
 /// Auto-generated from [UserCreated].
 GraphQLObjectType<UserCreated> get userCreatedGraphQLType =>
     _userCreatedGraphQLType.value;
+
+// **************************************************************************
+// ValidatorGenerator
+// **************************************************************************
+
+/// The arguments for [createUser].
+class CreateUserArgs with ToJson {
+  final Ctx<dynamic> ctx;
+  final String? name;
+
+  /// The arguments for [createUser].
+  const CreateUserArgs(
+    this.ctx,
+    this.name,
+  );
+
+  /// Validates this arguments for [createUser].
+  CreateUserArgsValidation validate() =>
+      CreateUserArgsValidation.fromValue(this);
+
+  /// Validates this arguments for [createUser] and
+  /// returns the successfully [Validated] value or
+  /// throws a [CreateUserArgsValidation] when there is an error.
+  Validated<CreateUserArgs> validatedOrThrow() {
+    final validation = validate();
+    final validated = validation.validated;
+    if (validated == null) {
+      throw validation;
+    }
+    return validated;
+  }
+
+  @override
+  Map<String, Object?> toJson() => {
+        'ctx': ctx,
+        'name': name,
+      };
+
+  @override
+  String toString() => 'CreateUserArgs${toJson()}';
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CreateUserArgs &&
+            ctx == other.ctx &&
+            name == other.name);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        ctx,
+        name,
+      );
+}
+
+enum CreateUserArgsField {
+  name,
+}
+
+class CreateUserArgsValidationFields {
+  const CreateUserArgsValidationFields(this.errorsMap);
+  final Map<CreateUserArgsField, List<ValidaError>> errorsMap;
+
+  List<ValidaError> get name => errorsMap[CreateUserArgsField.name] ?? const [];
+}
+
+class CreateUserArgsValidation
+    extends Validation<CreateUserArgs, CreateUserArgsField> {
+  CreateUserArgsValidation(this.errorsMap, this.value, this.fields)
+      : super(errorsMap);
+  @override
+  final Map<CreateUserArgsField, List<ValidaError>> errorsMap;
+  @override
+  final CreateUserArgs value;
+  @override
+  final CreateUserArgsValidationFields fields;
+
+  /// Validates [value] and returns a [CreateUserArgsValidation] with the errors found as a result
+  static CreateUserArgsValidation fromValue(CreateUserArgs value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <CreateUserArgsField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return CreateUserArgsValidation(
+        errors, value, CreateUserArgsValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      CreateUserArgsField.name: ValidaString(minLength: 2),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(CreateUserArgs value) => [];
+
+  static Object? _getField(CreateUserArgs value, String field) {
+    switch (field) {
+      case 'ctx':
+        return value.ctx;
+      case 'name':
+        return value.name;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}

@@ -18,7 +18,9 @@ User userFromToken(Ctx ctx, String token) {
     checkExpiresIn: true,
   );
   final reqData = UserReqData.fromCtx(ctx);
+  final payload = jwt.payload as Map;
   return User(
+    name: payload['name'] as String?,
     userId: jwt.subject!,
     reqData: reqData,
   );
@@ -28,6 +30,7 @@ String createToken(Ctx ctx, User user) {
   final jwt = JWT(
     {
       'userId': user.userId,
+      'name': user.name,
       'reqData': user.reqData.toJson(),
     },
     issuer: _JWT_ISSUER,

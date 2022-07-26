@@ -203,6 +203,12 @@ final _roomMessageGraphQLType =
   setValue(__roomMessageGraphQLType);
   __roomMessageGraphQLType.fields.addAll(
     [
+      graphQLString.nonNull().field('messageId',
+          resolve: (obj, ctx) => obj.messageId,
+          description: 'A unique id within the room'),
+      graphQLString
+          .nonNull()
+          .field('roomId', resolve: (obj, ctx) => obj.roomId),
       graphQLString.nonNull().field('content',
           resolve: (obj, ctx) => obj.content,
           description: 'The main payload of the message.'),

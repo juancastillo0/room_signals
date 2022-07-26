@@ -51,6 +51,11 @@ class RoomCreated {
 /// A room message.
 @GraphQLClass()
 class RoomMessage implements RoomEvent {
+  /// A unique id within the room
+  final String messageId;
+
+  final String roomId;
+
   /// The main payload of the message.
   final String content;
 
@@ -65,6 +70,8 @@ class RoomMessage implements RoomEvent {
   final String? recipientUserId;
 
   const RoomMessage({
+    required this.messageId,
+    required this.roomId,
     required this.content,
     required this.user,
     required this.createdDate,
@@ -76,6 +83,8 @@ class RoomMessage implements RoomEvent {
 @GraphQLUnion()
 class RoomEvent {
   const factory RoomEvent.message({
+    required String messageId,
+    required String roomId,
     required String content,
     required User user,
     required DateTime createdDate,
@@ -191,6 +200,8 @@ class RoomEndpoints {
     }
 
     final message = RoomMessage(
+      messageId: randomId(),
+      roomId: roomId,
       content: content,
       user: user,
       createdDate: DateTime.now(),
