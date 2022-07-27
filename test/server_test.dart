@@ -157,7 +157,7 @@ void main() {
       ),
     );
 
-    await roomFrom2.subscription.cancel();
+    await roomFrom2.cancelSubscription();
   });
 }
 

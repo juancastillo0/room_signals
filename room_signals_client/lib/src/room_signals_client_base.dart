@@ -1,24 +1,36 @@
-// TODO: Put public facing types in this file.
-
 import 'dart:async';
+import 'dart:convert' show jsonEncode, jsonDecode;
 
 import 'package:artemis/artemis.dart';
 import 'package:gql_websocket_link/gql_websocket_link.dart';
-
 import 'package:room_signals_client/graphql_api.graphql.dart';
 
-export 'package:artemis/artemis.dart';
 export 'package:room_signals_client/graphql_api.graphql.dart';
 
-/// Checks if you are awesome. Spoiler: you are.
-class Awesome {
-  bool get isAwesome => true;
-}
-
-abstract class ClientPersistence {
+mixin ClientPersistence {
   FutureOr<void> put(String key, String value);
   FutureOr<String?> get(String key);
   FutureOr<bool> delete(String key);
+}
+
+class ClientPersistencePrefixed with ClientPersistence {
+  final ClientPersistence inner;
+  final String prefix;
+
+  const ClientPersistencePrefixed({
+    required this.inner,
+    required this.prefix,
+  });
+
+  @override
+  FutureOr<bool> delete(String key) => inner.delete('$prefix$key');
+
+  @override
+  FutureOr<String?> get(String key) => inner.get('$prefix$key');
+
+  @override
+  FutureOr<void> put(String key, String value) =>
+      inner.put('$prefix$key', value);
 }
 
 class RoomSignalsClient {
@@ -26,12 +38,17 @@ class RoomSignalsClient {
   final ArtemisClient client;
   final WebSocketLink _link;
   final CreateUser$Mutation$UserCreated userCreated;
+  final ClientPersistence? persistence;
+
+  static const TOKEN_PERSISTENCE = 'room-signals-auth';
+  static const ROOM_TOKENS_PERSISTENCE = 'room-signals-tokens';
 
   RoomSignalsClient._(
     this.wsUrl,
     this.client,
     this._link,
     this.userCreated,
+    this.persistence,
   );
 
   static Future<RoomSignalsClient> create(
@@ -41,7 +58,6 @@ class RoomSignalsClient {
   }) async {
     final wsUrl = url.startsWith('http') ? url.replaceFirst('http', 'ws') : url;
 
-    const TOKEN_PERSISTENCE = 'room-signals-auth';
     String? token;
     if (persistence != null) {
       token = await persistence.get(TOKEN_PERSISTENCE);
@@ -54,7 +70,9 @@ class RoomSignalsClient {
       initialPayload: token != null ? {TOKEN_PERSISTENCE: token} : null,
     );
     ArtemisClient client = ArtemisClient.fromLink(link);
-    final response = await client.execute(CreateUserMutation());
+    final response = await client.execute(CreateUserMutation(
+      variables: CreateUserArguments(name: null),
+    ));
 
     final createUser = response.data?.createUser;
     if (token == null || createUser == null) {
@@ -81,12 +99,23 @@ class RoomSignalsClient {
       await persistence.put(TOKEN_PERSISTENCE, createUser.token);
     }
 
-    return RoomSignalsClient._(
+    final roomClient = RoomSignalsClient._(
       wsUrl,
       client,
       link,
       createUser,
+      persistence,
     );
+    if (persistence != null) {
+      final tokens = await persistence.get(ROOM_TOKENS_PERSISTENCE);
+      if (tokens != null) {
+        try {
+          final tokensList = (jsonDecode(tokens) as List).cast<String>();
+          await Future.wait(tokensList.map(roomClient.subscribeToRoom));
+        } catch (_) {}
+      }
+    }
+    return roomClient;
   }
 
   Future<void> dispose() async {
@@ -118,12 +147,25 @@ class RoomSignalsClient {
     return client.execute(SendMessageRoomMutation(variables: args));
   }
 
+  Future<void> _syncPersistence() async {
+    if (persistence != null) {
+      final List<String> tokens =
+          rooms.values.map((value) => value.token).toList();
+
+      await persistence!.put(
+        ROOM_TOKENS_PERSISTENCE,
+        jsonEncode(tokens),
+      );
+    }
+  }
+
   void _removeRoom(String roomId) {
     final room = rooms.remove(roomId);
     if (room != null) {
       room._isSubscribed = false;
-      room.subscription.cancel();
+      room.cancelSubscription();
       _roomChangeController.add(room);
+      _syncPersistence();
     }
   }
 
@@ -142,6 +184,7 @@ class RoomSignalsClient {
         comp.completeError(error, stackTrace);
       } else if (rooms.containsKey(roomId)) {
         comp.complete(rooms[roomId]);
+        _syncPersistence();
       }
     }
 
@@ -159,15 +202,16 @@ class RoomSignalsClient {
                 (value) => value..data = data,
                 ifAbsent: () => Room(
                   data: data,
-                  subscription: subs,
+                  cancelSubscription: () async {
+                    await subs.cancel();
+                    _removeRoom(data.roomId);
+                  },
                   token: token,
                 ),
               );
               _roomChangeController.add(room);
             } else if (data is EventsRoom$Subscription$RoomEvent$RoomMessage) {
               _messageController.add(data);
-            } else {
-              // TODO: handle errors or other events
             }
 
             complete(event.errors, null);
@@ -187,7 +231,7 @@ class RoomSignalsClient {
 
 class Room {
   final String token;
-  final StreamSubscription subscription;
+  final Future<void> Function() cancelSubscription;
   $RoomMixin data;
   bool _isSubscribed = true;
   bool get isSubscribed => _isSubscribed;
@@ -195,7 +239,7 @@ class Room {
   Room({
     required this.token,
     required this.data,
-    required this.subscription,
+    required this.cancelSubscription,
   });
 }
 
