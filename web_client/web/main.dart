@@ -3,8 +3,8 @@ import 'package:rad/widgets_html.dart';
 import 'package:rad/widgets_short_html.dart';
 
 import 'src/flex.dart';
-import 'src/messages_view.dart';
 import 'src/provider.dart';
+import 'src/room_client_view.dart';
 import 'src/theme.dart';
 
 void main() {
@@ -161,7 +161,7 @@ class Landing extends StatelessWidget {
         h3(
           child: Text('Try the Client'),
         ),
-        MessagesView(),
+        RoomSignalsClientView(),
       ],
     );
   }
