@@ -12,6 +12,7 @@ mixin $UserMixin {
   @JsonKey(name: '__typename')
   String? $$typename;
   late String userId;
+  String? name;
 }
 mixin $RoomMixin {
   @JsonKey(name: '__typename')
@@ -34,6 +35,8 @@ mixin $RoomMixin {
 mixin $RoomMessageMixin {
   @JsonKey(name: '__typename')
   String? $$typename;
+  late String messageId;
+  late String roomId;
   late String content;
   @JsonKey(
       fromJson: fromGraphQLDateToDartDateTime,
@@ -53,7 +56,7 @@ class CreateUser$Mutation$UserCreated$User extends JsonSerializable
       _$CreateUser$Mutation$UserCreated$UserFromJson(json);
 
   @override
-  List<Object?> get props => [$$typename, userId];
+  List<Object?> get props => [$$typename, userId, name];
   @override
   Map<String, dynamic> toJson() =>
       _$CreateUser$Mutation$UserCreated$UserToJson(this);
@@ -102,7 +105,7 @@ class GetUser$Query$User extends JsonSerializable
       _$GetUser$Query$UserFromJson(json);
 
   @override
-  List<Object?> get props => [$$typename, userId];
+  List<Object?> get props => [$$typename, userId, name];
   @override
   Map<String, dynamic> toJson() => _$GetUser$Query$UserToJson(this);
 }
@@ -160,7 +163,7 @@ class $RoomMixin$User extends JsonSerializable with EquatableMixin, $UserMixin {
       _$$RoomMixin$UserFromJson(json);
 
   @override
-  List<Object?> get props => [$$typename, userId];
+  List<Object?> get props => [$$typename, userId, name];
   @override
   Map<String, dynamic> toJson() => _$$RoomMixin$UserToJson(this);
 }
@@ -226,8 +229,15 @@ class SendMessageRoom$Mutation$RoomMessage extends JsonSerializable
       _$SendMessageRoom$Mutation$RoomMessageFromJson(json);
 
   @override
-  List<Object?> get props =>
-      [$$typename, content, createdDate, recipientUserId, user];
+  List<Object?> get props => [
+        $$typename,
+        messageId,
+        roomId,
+        content,
+        createdDate,
+        recipientUserId,
+        user
+      ];
   @override
   Map<String, dynamic> toJson() =>
       _$SendMessageRoom$Mutation$RoomMessageToJson(this);
@@ -257,7 +267,7 @@ class $RoomMessageMixin$User extends JsonSerializable
       _$$RoomMessageMixin$UserFromJson(json);
 
   @override
-  List<Object?> get props => [$$typename, userId];
+  List<Object?> get props => [$$typename, userId, name];
   @override
   Map<String, dynamic> toJson() => _$$RoomMessageMixin$UserToJson(this);
 }
@@ -290,8 +300,15 @@ class EventsRoom$Subscription$RoomEvent$RoomMessage
       _$EventsRoom$Subscription$RoomEvent$RoomMessageFromJson(json);
 
   @override
-  List<Object?> get props =>
-      [$$typename, content, createdDate, recipientUserId, user];
+  List<Object?> get props => [
+        $$typename,
+        messageId,
+        roomId,
+        content,
+        createdDate,
+        recipientUserId,
+        user
+      ];
   @override
   Map<String, dynamic> toJson() =>
       _$EventsRoom$Subscription$RoomEvent$RoomMessageToJson(this);
@@ -347,18 +364,45 @@ class EventsRoom$Subscription extends JsonSerializable with EquatableMixin {
   Map<String, dynamic> toJson() => _$EventsRoom$SubscriptionToJson(this);
 }
 
+@JsonSerializable(explicitToJson: true)
+class CreateUserArguments extends JsonSerializable with EquatableMixin {
+  CreateUserArguments({this.name});
+
+  @override
+  factory CreateUserArguments.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserArgumentsFromJson(json);
+
+  final String? name;
+
+  @override
+  List<Object?> get props => [name];
+  @override
+  Map<String, dynamic> toJson() => _$CreateUserArgumentsToJson(this);
+}
+
 final CREATE_USER_MUTATION_DOCUMENT_OPERATION_NAME = 'createUser';
 final CREATE_USER_MUTATION_DOCUMENT = DocumentNode(definitions: [
   OperationDefinitionNode(
       type: OperationType.mutation,
       name: NameNode(value: 'createUser'),
-      variableDefinitions: [],
+      variableDefinitions: [
+        VariableDefinitionNode(
+            variable: VariableNode(name: NameNode(value: 'name')),
+            type: NamedTypeNode(
+                name: NameNode(value: 'String'), isNonNull: false),
+            defaultValue: DefaultValueNode(value: null),
+            directives: [])
+      ],
       directives: [],
       selectionSet: SelectionSetNode(selections: [
         FieldNode(
             name: NameNode(value: 'createUser'),
             alias: null,
-            arguments: [],
+            arguments: [
+              ArgumentNode(
+                  name: NameNode(value: 'name'),
+                  value: VariableNode(name: NameNode(value: 'name')))
+            ],
             directives: [],
             selectionSet: SelectionSetNode(selections: [
               FieldNode(
@@ -395,13 +439,19 @@ final CREATE_USER_MUTATION_DOCUMENT = DocumentNode(definitions: [
             alias: null,
             arguments: [],
             directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'name'),
+            alias: null,
+            arguments: [],
+            directives: [],
             selectionSet: null)
       ]))
 ]);
 
 class CreateUserMutation
-    extends GraphQLQuery<CreateUser$Mutation, JsonSerializable> {
-  CreateUserMutation();
+    extends GraphQLQuery<CreateUser$Mutation, CreateUserArguments> {
+  CreateUserMutation({required this.variables});
 
   @override
   final DocumentNode document = CREATE_USER_MUTATION_DOCUMENT;
@@ -410,7 +460,10 @@ class CreateUserMutation
   final String operationName = CREATE_USER_MUTATION_DOCUMENT_OPERATION_NAME;
 
   @override
-  List<Object?> get props => [document, operationName];
+  final CreateUserArguments variables;
+
+  @override
+  List<Object?> get props => [document, operationName, variables];
   @override
   CreateUser$Mutation parse(Map<String, dynamic> json) =>
       CreateUser$Mutation.fromJson(json);
@@ -447,6 +500,12 @@ final GET_USER_QUERY_DOCUMENT = DocumentNode(definitions: [
             selectionSet: null),
         FieldNode(
             name: NameNode(value: 'userId'),
+            alias: null,
+            arguments: [],
+            directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'name'),
             alias: null,
             arguments: [],
             directives: [],
@@ -546,6 +605,12 @@ final GET_LIST_ROOM_QUERY_DOCUMENT = DocumentNode(definitions: [
             selectionSet: null),
         FieldNode(
             name: NameNode(value: 'userId'),
+            alias: null,
+            arguments: [],
+            directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'name'),
             alias: null,
             arguments: [],
             directives: [],
@@ -663,6 +728,12 @@ final CREATE_ROOM_MUTATION_DOCUMENT = DocumentNode(definitions: [
             alias: null,
             arguments: [],
             directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'name'),
+            alias: null,
+            arguments: [],
+            directives: [],
             selectionSet: null)
       ]))
 ]);
@@ -766,6 +837,18 @@ final SEND_MESSAGE_ROOM_MUTATION_DOCUMENT = DocumentNode(definitions: [
             directives: [],
             selectionSet: null),
         FieldNode(
+            name: NameNode(value: 'messageId'),
+            alias: null,
+            arguments: [],
+            directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'roomId'),
+            alias: null,
+            arguments: [],
+            directives: [],
+            selectionSet: null),
+        FieldNode(
             name: NameNode(value: 'content'),
             alias: null,
             arguments: [],
@@ -806,6 +889,12 @@ final SEND_MESSAGE_ROOM_MUTATION_DOCUMENT = DocumentNode(definitions: [
             selectionSet: null),
         FieldNode(
             name: NameNode(value: 'userId'),
+            alias: null,
+            arguments: [],
+            directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'name'),
             alias: null,
             arguments: [],
             directives: [],
@@ -964,6 +1053,12 @@ final EVENTS_ROOM_SUBSCRIPTION_DOCUMENT = DocumentNode(definitions: [
             alias: null,
             arguments: [],
             directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'name'),
+            alias: null,
+            arguments: [],
+            directives: [],
             selectionSet: null)
       ])),
   FragmentDefinitionNode(
@@ -975,6 +1070,18 @@ final EVENTS_ROOM_SUBSCRIPTION_DOCUMENT = DocumentNode(definitions: [
       selectionSet: SelectionSetNode(selections: [
         FieldNode(
             name: NameNode(value: '__typename'),
+            alias: null,
+            arguments: [],
+            directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'messageId'),
+            alias: null,
+            arguments: [],
+            directives: [],
+            selectionSet: null),
+        FieldNode(
+            name: NameNode(value: 'roomId'),
             alias: null,
             arguments: [],
             directives: [],

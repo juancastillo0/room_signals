@@ -11,13 +11,15 @@ CreateUser$Mutation$UserCreated$User
     _$CreateUser$Mutation$UserCreated$UserFromJson(Map<String, dynamic> json) =>
         CreateUser$Mutation$UserCreated$User()
           ..$$typename = json['__typename'] as String?
-          ..userId = json['userId'] as String;
+          ..userId = json['userId'] as String
+          ..name = json['name'] as String?;
 
 Map<String, dynamic> _$CreateUser$Mutation$UserCreated$UserToJson(
         CreateUser$Mutation$UserCreated$User instance) =>
     <String, dynamic>{
       '__typename': instance.$$typename,
       'userId': instance.userId,
+      'name': instance.name,
     };
 
 CreateUser$Mutation$UserCreated _$CreateUser$Mutation$UserCreatedFromJson(
@@ -48,12 +50,14 @@ Map<String, dynamic> _$CreateUser$MutationToJson(
 GetUser$Query$User _$GetUser$Query$UserFromJson(Map<String, dynamic> json) =>
     GetUser$Query$User()
       ..$$typename = json['__typename'] as String?
-      ..userId = json['userId'] as String;
+      ..userId = json['userId'] as String
+      ..name = json['name'] as String?;
 
 Map<String, dynamic> _$GetUser$Query$UserToJson(GetUser$Query$User instance) =>
     <String, dynamic>{
       '__typename': instance.$$typename,
       'userId': instance.userId,
+      'name': instance.name,
     };
 
 GetUser$Query _$GetUser$QueryFromJson(Map<String, dynamic> json) =>
@@ -108,12 +112,14 @@ Map<String, dynamic> _$GetListRoom$QueryToJson(GetListRoom$Query instance) =>
 $RoomMixin$User _$$RoomMixin$UserFromJson(Map<String, dynamic> json) =>
     $RoomMixin$User()
       ..$$typename = json['__typename'] as String?
-      ..userId = json['userId'] as String;
+      ..userId = json['userId'] as String
+      ..name = json['name'] as String?;
 
 Map<String, dynamic> _$$RoomMixin$UserToJson($RoomMixin$User instance) =>
     <String, dynamic>{
       '__typename': instance.$$typename,
       'userId': instance.userId,
+      'name': instance.name,
     };
 
 CreateRoom$Mutation$RoomCreated$Room
@@ -172,6 +178,8 @@ SendMessageRoom$Mutation$RoomMessage
     _$SendMessageRoom$Mutation$RoomMessageFromJson(Map<String, dynamic> json) =>
         SendMessageRoom$Mutation$RoomMessage()
           ..$$typename = json['__typename'] as String?
+          ..messageId = json['messageId'] as String
+          ..roomId = json['roomId'] as String
           ..content = json['content'] as String
           ..createdDate =
               fromGraphQLDateToDartDateTime(json['createdDate'] as String)
@@ -183,6 +191,8 @@ Map<String, dynamic> _$SendMessageRoom$Mutation$RoomMessageToJson(
         SendMessageRoom$Mutation$RoomMessage instance) =>
     <String, dynamic>{
       '__typename': instance.$$typename,
+      'messageId': instance.messageId,
+      'roomId': instance.roomId,
       'content': instance.content,
       'createdDate': fromDartDateTimeToGraphQLDate(instance.createdDate),
       'recipientUserId': instance.recipientUserId,
@@ -205,13 +215,15 @@ $RoomMessageMixin$User _$$RoomMessageMixin$UserFromJson(
         Map<String, dynamic> json) =>
     $RoomMessageMixin$User()
       ..$$typename = json['__typename'] as String?
-      ..userId = json['userId'] as String;
+      ..userId = json['userId'] as String
+      ..name = json['name'] as String?;
 
 Map<String, dynamic> _$$RoomMessageMixin$UserToJson(
         $RoomMessageMixin$User instance) =>
     <String, dynamic>{
       '__typename': instance.$$typename,
       'userId': instance.userId,
+      'name': instance.name,
     };
 
 EventsRoom$Subscription$RoomEvent$Room
@@ -247,6 +259,8 @@ EventsRoom$Subscription$RoomEvent$RoomMessage
             Map<String, dynamic> json) =>
         EventsRoom$Subscription$RoomEvent$RoomMessage()
           ..$$typename = json['__typename'] as String?
+          ..messageId = json['messageId'] as String
+          ..roomId = json['roomId'] as String
           ..content = json['content'] as String
           ..createdDate =
               fromGraphQLDateToDartDateTime(json['createdDate'] as String)
@@ -258,6 +272,8 @@ Map<String, dynamic> _$EventsRoom$Subscription$RoomEvent$RoomMessageToJson(
         EventsRoom$Subscription$RoomEvent$RoomMessage instance) =>
     <String, dynamic>{
       '__typename': instance.$$typename,
+      'messageId': instance.messageId,
+      'roomId': instance.roomId,
       'content': instance.content,
       'createdDate': fromDartDateTimeToGraphQLDate(instance.createdDate),
       'recipientUserId': instance.recipientUserId,
@@ -285,6 +301,17 @@ Map<String, dynamic> _$EventsRoom$SubscriptionToJson(
         EventsRoom$Subscription instance) =>
     <String, dynamic>{
       'eventsRoom': instance.eventsRoom.toJson(),
+    };
+
+CreateUserArguments _$CreateUserArgumentsFromJson(Map<String, dynamic> json) =>
+    CreateUserArguments(
+      name: json['name'] as String?,
+    );
+
+Map<String, dynamic> _$CreateUserArgumentsToJson(
+        CreateUserArguments instance) =>
+    <String, dynamic>{
+      'name': instance.name,
     };
 
 SendMessageRoomArguments _$SendMessageRoomArgumentsFromJson(

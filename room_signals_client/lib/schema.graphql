@@ -1,17 +1,44 @@
+"""The validation performed in a type, field or argument definition"""
+directive @valida(jsonSpec: String!) on SCALAR | OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 type Query {
+  """
+  Returns the currently authenticated user.
+  Throws "unauthenticated" if the user is not authenticated.
+  You may pass the user token as header, url query parameter or as a value
+  in the initial connection payload for web sockets.
+  The key of the value should be "room-signals-auth".
+  """
   getUser: User!
+
+  """Returns the list of currently subscribed rooms."""
   getListRoom: [Room!]!
 }
 
 type User {
+  """A unique user id"""
   userId: String!
+
+  """An optional name for the user"""
+  name: String
 }
 
 type Room {
+  """Unique id of the room"""
   roomId: String!
+
+  """All users that are subscribed to room events"""
   users: [User!]!
+
+  """
+  The date of the last message may be null when no messages have been sent
+  """
   lastMessageDate: Date
+
+  """The last update to user subscriptions"""
   lastUpdateDate: Date!
+
+  """The date of creation of the room"""
   createdDate: Date!
 }
 
@@ -19,31 +46,75 @@ type Room {
 scalar Date
 
 type Mutation {
-  createUser: UserCreated!
+  """Returns the currently authenticated user or creates a new one."""
+  createUser(name: String @valida(jsonSpec: "{\"variantType\":\"string\",\"minLength\":2}")): UserCreated!
+
+  """
+  Creates a room. You can use the RoomCreated.token for subscribing to events
+  in eventsRoom or sharing it to other users.
+  """
   createRoom: RoomCreated!
+
+  """
+  Resets the token for the given roomId. Only the creator can reset the token.
+  Previous tokens will be invalidated.
+  """
   resetTokenRoom(roomId: String!): RoomCreated
+
+  """
+  Sends a message with content to a room with roomId. You can direct it to a
+  specific user with recipientUserId.
+  """
   sendMessageRoom(roomId: String!, content: String!, recipientUserId: String): RoomMessage!
 }
 
 type UserCreated {
+  """
+  The user token. You may save this, but do not share it.
+  View getUser query documentation for more info.
+  """
   token: String!
   user: User!
 }
 
 type RoomCreated {
   room: Room!
+
+  """
+  Can be used to subscribe to room events you may share it to other users.
+  May be reset with resetTokenRoom
+  """
   token: String!
 }
 
+"""A room message."""
 type RoomMessage {
+  """A unique id within the room"""
+  messageId: String!
+  roomId: String!
+
+  """The main payload of the message."""
   content: String!
+
+  """The user that sent the message."""
   user: User!
+
+  """The date when the message was created."""
   createdDate: Date!
+
+  """
+  The user id to which this message was sent.
+  Null if it was sent to all users in a room.
+  """
   recipientUserId: String
 }
 
 type Subscription {
+  """Subscribes to changes in user subscription and room messages."""
   eventsRoom(token: String!): RoomEvent!
 }
 
+"""
+An event in a room. May be a message or a room with user subscription changes.
+"""
 union RoomEvent = RoomMessage | Room
