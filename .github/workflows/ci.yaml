@@ -22,6 +22,10 @@ jobs:
         name: Install dependencies
         run: dart pub get --directory=room_signals_client
 
+      - id: install_web_client
+        name: Install dependencies
+        run: dart pub get --directory=web_client
+
       - id: install
         name: Install dependencies
         run: dart pub get
