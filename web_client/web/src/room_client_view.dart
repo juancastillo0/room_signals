@@ -56,7 +56,10 @@ class _RoomSignalsClientViewState extends State<RoomSignalsClientView> {
       prefix: 'rs_client-',
     );
     RoomSignalsClient.create(
-      'ws://localhost:6394/graphql-subscription',
+      const String.fromEnvironment(
+        'ENDPOINT_BASE',
+        defaultValue: 'ws://localhost:6394',
+      ) + '/graphql-subscription',
       persistence: persistence,
     ).then((value) {
       if (!mounted) return;

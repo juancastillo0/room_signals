@@ -18,6 +18,8 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
 
+      - run: dart pub global activate webdev
+
       - id: install_client
         name: Install dependencies
         run: dart pub get --directory=room_signals_client
@@ -51,9 +53,14 @@ jobs:
         run: dart test
         if: always() && steps.install.outcome == 'success'
 
+      - id: build_web
+        name: Build web client
+        run: cd web_client && webdev build --release --output web:build -- '--define=build_web_compilers:ddc=environment={"ENDPOINT_BASE":"https://juancastillo.xyz"}'
+        if: always() && steps.install_web_client.outcome == 'success'
+
       - id: compile
         name: Compile binary
-        run: dart compile exe bin/server.dart --output bin/server
+        run: dart compile exe bin/server.dart --output web_client/build/server
         if: always() && steps.install.outcome == 'success'
 
       - name: Upload binary
@@ -61,7 +68,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04' && matrix.sdk == 'stable' && github.ref_name == 'main' && github.event_name == 'push'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./bin
+          publish_dir: ./web_client/build
 
       # - id: coverage
       #   name: Collect and report coverage

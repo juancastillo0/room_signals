@@ -25,6 +25,10 @@ class Landing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const _anchorStyle = 'padding-bottom:12px;';
+    const host = String.fromEnvironment(
+      'ENDPOINT_BASE',
+      defaultValue: '',
+    );
 
     return const Column(
       cross: AxisAlign.center,
@@ -55,7 +59,7 @@ class Landing extends StatelessWidget {
                 children: [
                   a(
                     style: _anchorStyle,
-                    href: '/graphql-schema',
+                    href: '$host/graphql-schema',
                     child: Text("Schema"),
                   ),
                   Text(
@@ -69,7 +73,7 @@ class Landing extends StatelessWidget {
                 children: [
                   a(
                     style: _anchorStyle,
-                    href: '/graphql-schema-interactive',
+                    href: '$host/graphql-schema-interactive',
                     child: Text("Interactive Schema"),
                   ),
                   Text(
@@ -98,7 +102,8 @@ class Landing extends StatelessWidget {
         ),
         p(
           style: 'margin-top:0;max-width:500px;',
-          innerText: 'Explore the schema and documentation, and create and execute queries'
+          innerText:
+              'Explore the schema and documentation, and create and execute queries'
               ' with autocompletion using the following tools.',
         ),
         Row(
@@ -111,7 +116,7 @@ class Landing extends StatelessWidget {
                 children: [
                   a(
                     style: _anchorStyle,
-                    href: '/graphql-altair',
+                    href: '$host/graphql-altair',
                     child: Text("Altair"),
                   ),
                   Image(
@@ -129,7 +134,7 @@ class Landing extends StatelessWidget {
                 children: [
                   a(
                     style: _anchorStyle,
-                    href: '/graphql-playground',
+                    href: '$host/graphql-playground',
                     child: Text("Playground"),
                   ),
                   Image(
@@ -146,7 +151,7 @@ class Landing extends StatelessWidget {
                 children: [
                   a(
                     style: _anchorStyle,
-                    href: '/graphql-graphiql',
+                    href: '$host/graphql-graphiql',
                     child: span(
                       children: [
                         Text('GraphiQL'),
