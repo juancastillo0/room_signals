@@ -8,6 +8,7 @@ import 'package:room_signals_client/room_signals_client.dart';
 
 import 'flex.dart';
 import 'inputs.dart';
+import 'style.dart';
 import 'utils/local_storage_persistence.dart';
 
 class RoomSignalsClientView extends StatefulWidget {
@@ -162,9 +163,11 @@ class _RoomSignalsClientViewState extends State<RoomSignalsClientView> {
     return div(
       style: 'height:350px;max-width:600px;',
       child: Column(
+        cross: AxisAlign.stretch,
         children: [
           Row(
             expand: false,
+            main: AxisAlign.center,
             children: [
               Label(
                 innerText: 'Username',
@@ -180,83 +183,92 @@ class _RoomSignalsClientViewState extends State<RoomSignalsClientView> {
                 onClick: (event) {},
                 child: Text('Update Name'),
               ),
-              const Span(style: 'width:20px;'),
               if (room != null)
                 Button(
+                  style: 'margin-left:20px;',
                   onClick: _leaveRoom,
                   child: Text('Leave Room'),
                 )
             ],
           ),
-          const Span(style: 'height:20px;'),
-          if (room != null)
-            Row(
-              cross: AxisAlign.end,
-              children: [
-                Flexible(child: _roomMessages()),
-                div(
-                  style: 'text-align:start;font-size:0.8em;width:170px;'
-                      'overflow-wrap:anywhere;padding-left:12px;',
-                  child: Column(
-                    cross: AxisAlign.start,
-                    children: [
-                      Text('RoomId: ${room!.data.roomId}'),
-                      Text('Token: ${room!.token}'),
-                      Text('LastUpdate: ${room!.data.lastUpdateDate}'),
-                      Text('Created: ${room!.data.createdDate}'),
-                      Text('Users'),
-                      UnOrderedList(
-                        style: 'margin:0;padding-left:25px;',
+          const Span(style: 'height:15px;'),
+          div(
+            style: (style()
+                  ..borderRadius = '6px'
+                  ..background = '#f0f3f5'
+                  ..padding = '5px')
+                .cssText,
+            children: [
+              if (room != null)
+                Row(
+                  cross: AxisAlign.end,
+                  children: [
+                    Flexible(child: _roomMessages()),
+                    div(
+                      style: 'text-align:start;font-size:0.8em;width:170px;'
+                          'overflow-wrap:anywhere;padding-left:12px;',
+                      child: Column(
+                        cross: AxisAlign.start,
                         children: [
-                          ...room!.data.users.map(
-                            (e) => ListItem(
-                              key: Key(e.userId),
-                              child: Text(
-                                '${e.name ?? e.userId}${e.name == null ? '' : '(${e.userId})'}',
-                              ),
-                            ),
-                          )
+                          Text('RoomId: ${room!.data.roomId}'),
+                          Text('Token: ${room!.token}'),
+                          Text('LastUpdate: ${room!.data.lastUpdateDate}'),
+                          Text('Created: ${room!.data.createdDate}'),
+                          Text('Users'),
+                          UnOrderedList(
+                            style: 'margin:0;padding-left:25px;',
+                            children: [
+                              ...room!.data.users.map(
+                                (e) => ListItem(
+                                  key: Key(e.userId),
+                                  child: Text(
+                                    '${e.name ?? e.userId}${e.name == null ? '' : '(${e.userId})'}',
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            )
-          else
-            div(
-              style: '${flexCenter(column: true)};padding:32px;',
-              children: [
-                Button(
-                  onClick: _createRoom,
-                  child: Text('Create Room'),
-                ),
-                Text(
-                  'Or use a room token',
-                  style: 'padding:12px 18px;font-size:1.2em;',
-                ),
-                Row(
+                    ),
+                  ],
+                )
+              else
+                div(
+                  style: '${flexCenter(column: true)};padding:32px;',
                   children: [
-                    Label(
-                      innerText: 'Room Token',
-                      forAttribute: 'roomTokenInput',
-                    ),
-                    const Span(style: 'width:10px;'),
-                    InputText(
-                      id: 'roomTokenInput',
-                      value: roomToken.value,
-                      onInput: onInput(roomToken),
-                    ),
                     Button(
-                      onClick: (event) {
-                        _subscribeToRoom(roomToken.value);
-                      },
-                      child: Text('Enter Room'),
+                      onClick: _createRoom,
+                      child: Text('Create Room'),
+                    ),
+                    Text(
+                      'Or use a room token',
+                      style: 'padding:12px 18px;font-size:1.2em;',
+                    ),
+                    Row(
+                      children: [
+                        Label(
+                          innerText: 'Token',
+                          forAttribute: 'roomTokenInput',
+                        ),
+                        const Span(style: 'width:10px;'),
+                        InputText(
+                          id: 'roomTokenInput',
+                          value: roomToken.value,
+                          onInput: onInput(roomToken),
+                        ),
+                        Button(
+                          onClick: (event) {
+                            _subscribeToRoom(roomToken.value);
+                          },
+                          child: Text('Enter Room'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+            ],
+          ),
         ],
       ),
     );

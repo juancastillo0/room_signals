@@ -73,6 +73,7 @@ String flexCenter({bool column = false}) {
     main: AxisAlign.center,
     cross: AxisAlign.center,
     column: column,
+    expand: false,
   );
 }
 

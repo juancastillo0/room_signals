@@ -27,6 +27,7 @@ class Landing extends StatelessWidget {
     const _anchorStyle = 'padding-bottom:12px;';
 
     return const Column(
+      cross: AxisAlign.center,
       children: [
         h1(style: 'margin:8px 0;', child: Text('Room Signals')),
         h3(
@@ -47,6 +48,7 @@ class Landing extends StatelessWidget {
         Row(
           wrap: FlexWrap.wrap,
           main: AxisAlign.center,
+          cross: AxisAlign.stretch,
           children: [
             Card(
               child: Column(
@@ -71,7 +73,7 @@ class Landing extends StatelessWidget {
                     child: Text("Interactive Schema"),
                   ),
                   Text(
-                    'View and interact with the complete GraphQL server API.',
+                    'View and interact with the GraphQL server API.',
                   ),
                 ],
               ),
@@ -96,12 +98,13 @@ class Landing extends StatelessWidget {
         ),
         p(
           style: 'margin-top:0;max-width:500px;',
-          innerText: 'Explore the schema and documentation, and create queries'
+          innerText: 'Explore the schema and documentation, and create and execute queries'
               ' with autocompletion using the following tools.',
         ),
         Row(
           wrap: FlexWrap.wrap,
           main: AxisAlign.center,
+          cross: AxisAlign.stretch,
           children: [
             Card(
               child: Column(
