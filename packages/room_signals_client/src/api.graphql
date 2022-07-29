@@ -1,0 +1,89 @@
+# Welcome to Altair GraphQL Client.
+# You can send your request using CmdOrCtrl + Enter.
+
+# Enter your graphQL query here.
+
+mutation createUser($name: String) {
+  createUser(name: $name) {
+    token
+    user {
+      ..._User
+    }
+  }
+}
+
+query getUser {
+  getUser {
+    ..._User
+  }
+}
+
+query getListRoom {
+  getListRoom {
+    ..._Room
+  }
+}
+
+mutation createRoom {
+  createRoom {
+    token
+    room {
+      ..._Room
+    }
+  }
+}
+
+mutation sendMessageRoom(
+  $roomId: String!
+  $content: String!
+  $recipientUserId: String
+) {
+  sendMessageRoom(
+    roomId: $roomId
+    content: $content
+    recipientUserId: $recipientUserId
+  ) {
+    ..._RoomMessage
+  }
+}
+
+subscription eventsRoom($token: String!) {
+  eventsRoom(token: $token) {
+    __typename
+    ... on Room {
+      ..._Room
+    }
+    ... on RoomMessage {
+      ..._RoomMessage
+    }
+  }
+}
+
+fragment _User on User {
+  __typename
+  userId
+  name
+}
+
+fragment _Room on Room {
+  __typename
+  roomId
+  lastMessageDate
+  lastUpdateDate
+  createdDate
+  users {
+    ..._User
+  }
+}
+
+fragment _RoomMessage on RoomMessage {
+  __typename
+  messageId
+  roomId
+  content
+  createdDate
+  recipientUserId
+  user {
+    ..._User
+  }
+}
