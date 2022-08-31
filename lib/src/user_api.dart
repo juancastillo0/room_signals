@@ -6,7 +6,7 @@ import 'util.dart';
 
 part 'user_api.g.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 class User {
   /// A unique user id
   final String userId;
@@ -24,7 +24,7 @@ class User {
   });
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class UserCreated {
   /// The user token. You may save this, but do not share it.
   /// View getUser query documentation for more info.

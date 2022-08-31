@@ -8,7 +8,7 @@ import 'util.dart';
 
 part 'room_api.g.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 class Room implements RoomEvent {
   /// Unique id of the room
   final String roomId;
@@ -34,7 +34,7 @@ class Room implements RoomEvent {
   });
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class RoomCreated {
   final Room room;
 
@@ -49,7 +49,7 @@ class RoomCreated {
 }
 
 /// A room message.
-@GraphQLClass()
+@GraphQLObject()
 class RoomMessage implements RoomEvent {
   /// A unique id within the room
   final String messageId;
