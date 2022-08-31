@@ -59,9 +59,11 @@ String? getUserToken(Ctx ctx) {
   return userToken.token;
 }
 
-Map<Object, Object?> setUserTokenOverrides(Map<String, Object?> payload) {
+List<ScopedOverride> setUserTokenOverrides(Map<String, Object?> payload) {
   final token = payload[_AUTH_HEADER] as String?;
-  return {_UserToken.ref: _UserToken(token: token)};
+  return [
+    _UserToken.ref.override((scope) => _UserToken(token: token)),
+  ];
 }
 
 class _UserToken {
@@ -71,7 +73,7 @@ class _UserToken {
     this.token,
   });
 
-  static final ref = RefWithDefault.scoped(
+  static final ref = ScopedRef.local(
     (scope) => _UserToken(),
   );
 }
@@ -93,8 +95,7 @@ class UserReqData {
     required this.host,
   });
 
-  static final _ref =
-      RefWithDefault.scoped((scope) => MutVal<UserReqData>(null));
+  static final _ref = ScopedRef.local((scope) => MutVal<UserReqData>(null));
 
   factory UserReqData.fromCtx(Ctx ctx) {
     final refVal = _ref.get(ctx);

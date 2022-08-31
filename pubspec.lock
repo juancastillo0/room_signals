@@ -16,7 +16,7 @@ packages:
     source: hosted
     version: "3.4.1"
   args:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: args
       url: "https://pub.dartlang.org"
@@ -205,7 +205,7 @@ packages:
     source: hosted
     version: "2.1.0"
   gql:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: gql
       url: "https://pub.dartlang.org"
@@ -326,39 +326,31 @@ packages:
   leto:
     dependency: "direct main"
     description:
-      path: leto
-      ref: valida_integration
-      resolved-ref: "21309ebc0b0ba45b58c7df765c0b160089a57dd5"
-      url: "https://github.com/juancastillo0/leto"
-    source: git
-    version: "0.0.1"
+      name: leto
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.1"
   leto_generator:
     dependency: "direct dev"
     description:
-      path: leto_generator
-      ref: valida_integration
-      resolved-ref: "21309ebc0b0ba45b58c7df765c0b160089a57dd5"
-      url: "https://github.com/juancastillo0/leto"
-    source: git
-    version: "0.0.1"
+      name: leto_generator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.1"
   leto_schema:
     dependency: "direct main"
     description:
-      path: leto_schema
-      ref: valida_integration
-      resolved-ref: "21309ebc0b0ba45b58c7df765c0b160089a57dd5"
-      url: "https://github.com/juancastillo0/leto"
-    source: git
-    version: "0.0.1"
+      name: leto_schema
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.1"
   leto_shelf:
     dependency: "direct main"
     description:
-      path: leto_shelf
-      ref: valida_integration
-      resolved-ref: "21309ebc0b0ba45b58c7df765c0b160089a57dd5"
-      url: "https://github.com/juancastillo0/leto"
-    source: git
-    version: "0.0.1"
+      name: leto_shelf
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.1"
   lint:
     dependency: "direct dev"
     description:
@@ -485,6 +477,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
+  shelf_proxy:
+    dependency: "direct main"
+    description:
+      name: shelf_proxy
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   shelf_router:
     dependency: "direct main"
     description:
@@ -621,21 +620,17 @@ packages:
   valida:
     dependency: "direct main"
     description:
-      path: valida
-      ref: HEAD
-      resolved-ref: effddbbc7ef41aa480f7891bd28828ea5d9ba02a
-      url: "https://github.com/juancastillo0/valida"
-    source: git
-    version: "0.1.0"
+      name: valida
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0-dev.1"
   valida_generator:
     dependency: "direct dev"
     description:
-      path: valida_generator
-      ref: HEAD
-      resolved-ref: effddbbc7ef41aa480f7891bd28828ea5d9ba02a
-      url: "https://github.com/juancastillo0/valida"
-    source: git
-    version: "0.1.0"
+      name: valida_generator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0-dev.1"
   validators:
     dependency: transitive
     description:

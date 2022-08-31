@@ -115,7 +115,7 @@ GraphQLObjectType<UserCreated> get userCreatedGraphQLType =>
 // **************************************************************************
 
 /// The arguments for [createUser].
-class CreateUserArgs with ToJson {
+class CreateUserArgs with ValidaToJson {
   final Ctx<dynamic> ctx;
   final String? name;
 
@@ -180,8 +180,9 @@ class CreateUserArgsValidationFields {
 
 class CreateUserArgsValidation
     extends Validation<CreateUserArgs, CreateUserArgsField> {
-  CreateUserArgsValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  CreateUserArgsValidation(this.errorsMap, this.value)
+      : fields = CreateUserArgsValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<CreateUserArgsField, List<ValidaError>> errorsMap;
   @override
@@ -190,27 +191,16 @@ class CreateUserArgsValidation
   final CreateUserArgsValidationFields fields;
 
   /// Validates [value] and returns a [CreateUserArgsValidation] with the errors found as a result
-  static CreateUserArgsValidation fromValue(CreateUserArgs value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <CreateUserArgsField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return CreateUserArgsValidation(
-        errors, value, CreateUserArgsValidationFields(errors));
-  }
+  factory CreateUserArgsValidation.fromValue(CreateUserArgs value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: CreateUserArgsValidation.new,
+    getField: _getField,
     fieldsMap: {
       CreateUserArgsField.name: ValidaString(minLength: 2),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(CreateUserArgs value) => [];

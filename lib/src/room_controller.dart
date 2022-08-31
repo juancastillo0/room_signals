@@ -109,9 +109,8 @@ class RoomsController {
     }
   }
 
-  static final ref = RefWithDefault(
+  static final ref = ScopedRef.global(
     (scope) => RoomsController(),
-    scoped: false,
   );
 
   final Map<String, RoomController> rooms = {};

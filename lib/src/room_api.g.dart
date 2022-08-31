@@ -17,8 +17,8 @@ final _getListRoomGraphQLField =
                 final args = ctx.args;
 
                 final _call = (RoomEndpoints r) => r.getListRoom(ctx);
-                final FutureOr<RoomEndpoints>
-                    _obj = // ignore: unnecessary_non_null_assertion
+                final FutureOr<RoomEndpoints> _obj =
+// ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
@@ -38,8 +38,8 @@ final _createRoomGraphQLField =
                 final args = ctx.args;
 
                 final _call = (RoomEndpoints r) => r.createRoom(ctx);
-                final FutureOr<RoomEndpoints>
-                    _obj = // ignore: unnecessary_non_null_assertion
+                final FutureOr<RoomEndpoints> _obj =
+// ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
@@ -61,8 +61,8 @@ final _resetTokenRoomGraphQLField =
 
                 final _call = (RoomEndpoints r) =>
                     r.resetTokenRoom(ctx, (args["roomId"] as String));
-                final FutureOr<RoomEndpoints>
-                    _obj = // ignore: unnecessary_non_null_assertion
+                final FutureOr<RoomEndpoints> _obj =
+// ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
@@ -88,8 +88,8 @@ final _sendMessageRoomGraphQLField =
                     (args["roomId"] as String),
                     (args["content"] as String),
                     (args["recipientUserId"] as String?));
-                final FutureOr<RoomEndpoints>
-                    _obj = // ignore: unnecessary_non_null_assertion
+                final FutureOr<RoomEndpoints> _obj =
+// ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);
@@ -116,8 +116,8 @@ final _eventsRoomGraphQLField =
 
                 final _call = (RoomEndpoints r) =>
                     r.eventsRoom(ctx, (args["token"] as String));
-                final FutureOr<RoomEndpoints>
-                    _obj = // ignore: unnecessary_non_null_assertion
+                final FutureOr<RoomEndpoints> _obj =
+// ignore: unnecessary_non_null_assertion
                     RoomEndpoints.ref.get(ctx)!;
                 if (_obj is Future<RoomEndpoints>)
                   return _obj.then(_call);

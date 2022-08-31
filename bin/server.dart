@@ -111,7 +111,7 @@ Router makeServerRouter(ServerConfig config) {
         graphQLExecutor,
         validateIncomingConnection: (payload, server) {
           if (payload != null) {
-            server.globalVariables.addAll(setUserTokenOverrides(payload));
+            server.scopeOverrides.addAll(setUserTokenOverrides(payload));
           }
           return true;
         },

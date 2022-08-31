@@ -106,9 +106,8 @@ class RoomEndpoints {
 
   final RoomsController controller;
 
-  static final ref = RefWithDefault(
+  static final ref = ScopedRef.global(
     (scope) => RoomEndpoints(RoomsController.ref.get(scope)),
-    scoped: false,
   );
 
   RoomController _getRoomForUser(String roomId, User user) {
